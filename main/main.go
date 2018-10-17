@@ -1,9 +1,13 @@
 package main
 
 import (
+	"../controllers"
 	"../routes"
 )
 
 func main() {
-	routes.SetRoutes()
+	controllers.StartDB()
+	if !controllers.GetError() {
+		routes.SetUpRoutes()
+	}
 }
