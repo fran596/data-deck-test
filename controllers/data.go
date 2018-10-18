@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"../models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -41,6 +43,8 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	defer rows.Close()
 
+	res := make([]models.Songs, 0)
+
 	//Iterate through result set
 	for rows.Next() {
 		var artist string
@@ -49,6 +53,16 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		var length int
 		err := rows.Scan(&artist, &song, &length, &genre)
 		checkErr(err)
-		fmt.Fprintf(w, "name=%s genre=%s\n", song, genre)
+
+		res = append(res, models.Songs{
+			Song:   song,
+			Artist: artist,
+			Genre:  genre,
+			Length: length,
+		})
 	}
+
+	jsonOut, _ := json.Marshal(res)
+	fmt.Fprintf(w, string(jsonOut))
+
 }
