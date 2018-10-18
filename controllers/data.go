@@ -111,3 +111,36 @@ func GetByLength(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(jsonOut))
 
 }
+
+func GetAllGenres(w http.ResponseWriter, r *http.Request) {
+
+	// Query data
+	rows, err := db.Query("SELECT genres.name as genre, sum(songs.length) as length, count (song) as songs FROM songs join genres on songs.genre = genres.id group by genre")
+	checkErr(err)
+	defer rows.Close()
+
+	res := make([]models.Genres, 0)
+
+	//Iterate through result set
+	for rows.Next() {
+		var genre string
+		var length int
+		var songs int
+
+		err := rows.Scan(&genre, &length, &songs)
+		checkErr(err)
+
+		//Append result set to res variable
+		res = append(res, models.Genres{
+			Genre:  genre,
+			Length: length,
+			Songs:  songs,
+		})
+	}
+
+	jsonOut, _ := json.Marshal(res)
+
+	//Send API response on JSON format
+	fmt.Fprintf(w, string(jsonOut))
+
+}
