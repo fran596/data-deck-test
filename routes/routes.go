@@ -18,4 +18,5 @@ func SetUpRoutes() {
 
 func setRoutes(mux *goji.Mux) {
 	mux.HandleFunc(pat.Get("/:search"), controllers.GetData)
+	mux.HandleFunc(pat.Get("/length/:len"), controllers.GetByLength)
 }

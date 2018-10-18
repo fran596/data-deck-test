@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
+	//Start the DB
 	controllers.StartDB()
 	if !controllers.GetError() {
+		//If no errors setup the API routes
 		routes.SetUpRoutes()
 	}
 }
