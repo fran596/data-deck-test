@@ -8,6 +8,7 @@ import (
 
 	"../models"
 	_ "github.com/mattn/go-sqlite3"
+	"goji.io/pat"
 )
 
 var db *sql.DB
@@ -38,8 +39,9 @@ func StartDB() {
 }
 
 func GetData(w http.ResponseWriter, r *http.Request) {
+	search := pat.Param(r, "search")
 	// Query data
-	rows, err := db.Query("SELECT songs.artist, songs.song, songs.length, genres.name as genre FROM songs join genres on songs.genre = genres.id where song = '' OR artist = '' OR genres.name ='Pop'")
+	rows, err := db.Query("SELECT songs.artist, songs.song, songs.length, genres.name as genre FROM songs join genres on songs.genre = genres.id where song like? OR artist like? OR genres.name like?", search, search, search)
 	checkErr(err)
 	defer rows.Close()
 

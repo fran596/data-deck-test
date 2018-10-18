@@ -17,5 +17,5 @@ func SetUpRoutes() {
 }
 
 func setRoutes(mux *goji.Mux) {
-	mux.HandleFunc(pat.Get("/get"), controllers.GetData)
+	mux.HandleFunc(pat.Get("/:search"), controllers.GetData)
 }
