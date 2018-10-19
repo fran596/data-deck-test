@@ -23,7 +23,7 @@ cd main
 Start the project
 
 ```
-go main.go
+go run main.go
 ```
 
 ## Built With
