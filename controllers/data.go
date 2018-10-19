@@ -17,7 +17,7 @@ var db *sql.DB
 
 var dbError = false
 
-func checkErr(err error, args ...string) {
+func checkErr(err error, args ...string) bool {
 	if err != nil {
 		fmt.Println("Error")
 		fmt.Println("%q: %s", err, args)
@@ -25,6 +25,7 @@ func checkErr(err error, args ...string) {
 	} else {
 		dbError = false
 	}
+	return dbError
 
 }
 
@@ -38,11 +39,26 @@ func StartDB() {
 	checkErr(err)
 
 	//Fail if can't connect to DB
-	checkErr(db.Ping())
+	if checkErr(db.Ping()) {
+		return
+	}
 }
 
 func GetData(w http.ResponseWriter, r *http.Request) {
+
+	//Fail if can't connect to DB
+	if checkErr(db.Ping()) {
+		http.Error(w, "could not connect to DB", http.StatusBadRequest)
+		return
+	}
+
 	search := pat.Param(r, "search")
+
+	if search == "" {
+		http.Error(w, "missing value", http.StatusBadRequest)
+		return
+	}
+
 	// Query data
 	rows, err := db.Query("SELECT songs.artist, songs.song, songs.length, genres.name as genre FROM songs join genres on songs.genre = genres.id where song like? OR artist like? OR genres.name like?", search, search, search)
 	checkErr(err)
@@ -76,9 +92,27 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetByLength(w http.ResponseWriter, r *http.Request) {
+
+	//Fail if can't connect to DB
+	if checkErr(db.Ping()) {
+		http.Error(w, "could not connect to DB", http.StatusBadRequest)
+		return
+	}
+
 	totalLen := pat.Param(r, "len")
 	s := strings.Split(totalLen, "-")
+
+	//check that 2 values were passed
+	if len(s) != 2 {
+		http.Error(w, "values are not accepted. Check the format is correct", http.StatusBadRequest)
+		return
+	}
 	firstLen, secondLen := s[0], s[1]
+
+	if firstLen == "" || secondLen == "" {
+		http.Error(w, "missing value", http.StatusBadRequest)
+		return
+	}
 
 	// Query data
 	rows, err := db.Query("SELECT songs.artist, songs.song, songs.length, genres.name as genre FROM songs join genres on songs.genre = genres.id where songs.length between ? and ? order by songs.length desc", firstLen, secondLen)
@@ -113,6 +147,12 @@ func GetByLength(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllGenres(w http.ResponseWriter, r *http.Request) {
+
+	//Fail if can't connect to DB
+	if checkErr(db.Ping()) {
+		http.Error(w, "could not connect to DB", http.StatusBadRequest)
+		return
+	}
 
 	// Query data
 	rows, err := db.Query("SELECT genres.name as genre, sum(songs.length) as length, count (song) as songs FROM songs join genres on songs.genre = genres.id group by genre")
