@@ -26,6 +26,29 @@ Start the project
 go run main.go
 ```
 
+### API Usage
+
+For searching a song, genre or artist
+```
+http://localhost:8000/:searchTerm
+
+Example:
+http://localhost:8000/:pop
+```
+For getting all the songs between a length range
+```
+http://localhost:8000/length/:firstLen-secondLen
+
+Example:
+http://localhost:8000/length/123-168
+```
+
+For getting all the genres information
+```
+http://localhost:8000/genres/get
+
+```
+
 ## Built With
 
 * [Golang](https://golang.org/) - The language used
