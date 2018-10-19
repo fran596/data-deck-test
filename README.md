@@ -33,7 +33,7 @@ For searching a song, genre or artist
 http://localhost:8000/:searchTerm
 
 Example:
-http://localhost:8000/:pop
+http://localhost:8000/pop
 ```
 For getting all the songs between a length range
 ```
